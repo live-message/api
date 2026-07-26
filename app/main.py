@@ -1,10 +1,14 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from scalar_fastapi import get_scalar_api_reference
 
-from app import config
+from app import config, log_setup
 from app.routers import servers
 from app.services.database import create_db_and_tables
+
+log = log_setup("APP")
 
 app = FastAPI(
     title="Live Message ",
@@ -23,9 +27,11 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     create_db_and_tables()
+    yield
+    log.debug("Приложение завершило работу")
 
 
 @app.get("/docs", include_in_schema=False)

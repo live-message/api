@@ -27,4 +27,4 @@ class PaginationParams:
         self.limit = limit
 
 
-PaginationDep = Annotated[PaginationParams, Depends(PaginationParams)]
+Pagination = Annotated[PaginationParams, Depends(PaginationParams)]

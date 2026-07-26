@@ -1,6 +1,6 @@
 from app.schemas import models
 from app.schemas.servers import Servers
-from app.utils.paginations import PaginationDep, Session
+from app.utils.paginations import Pagination, Session
 from fastapi import APIRouter, Query
 from sqlmodel import col, select
 
@@ -15,7 +15,7 @@ router = APIRouter()
 )
 async def list_servers(
     session: Session,
-    pagination: PaginationDep,
+    pagination: Pagination,
     name: str | None = Query(
         None,
         min_length=1,
@@ -44,5 +44,4 @@ async def list_servers(
     result = await session.execute(stmt)
     servers = result.scalars().all()
 
-    # Преобразуем ORM-объекты в Pydantic-модели
     return [Servers.model_validate(server) for server in servers]
