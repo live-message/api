@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from scalar_fastapi import get_scalar_api_reference
 
+from app import config
 from app.routers import servers
 from app.services.database import create_db_and_tables
-from app.utils.config import config
 
 app = FastAPI(
     title="Live Message ",

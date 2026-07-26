@@ -1,7 +1,8 @@
 from urllib.parse import unquote, urlparse
 
 import psycopg2
-from app import config, log_setup
+from app import log_setup
+from app.utils import config
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel

@@ -1,7 +1,10 @@
-from app.schemas.models import Servers
-from app.services.database import get_async_session
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import Sequence
+from typing import Annotated
+
+from app.schemas import models
+from app.schemas.servers import ServerRead
+from app.utils.paginations import PaginationDep, Session
+from fastapi import APIRouter, Query
 from sqlmodel import select
 
 router = APIRouter()
@@ -9,30 +12,43 @@ router = APIRouter()
 
 @router.get(
     "/",
-    response_model=list[Servers],
+    response_model=list[ServerRead],
     summary="Список серверов",
-    description="Полный список серверов с пагинацией",
+    description="Полный список серверов с пагинацией и фильтрами",
 )
-async def get_all_servers(
-    session: AsyncSession = Depends(get_async_session),  # noqa: B008
-    offset: int = Query(default=0, ge=0, description="Смещение для пагинации"),
-    limit: int = Query(
-        default=100, ge=1, le=1000, description="Количество записей на странице"
-    ),
-):
-    """
-    Получение списка серверов с пагинацией
+async def list_servers(
+    session: Session,
+    pagination: PaginationDep,
+    name: Annotated[
+        str | None,
+        Query(
+            min_length=1,
+            max_length=255,
+            description="Поиск по имени сервера",
+        ),
+    ] = None,
+    status: Annotated[
+        str | None,
+        Query(
+            description="Фильтр по статусу",
+        ),
+    ] = None,
+) -> Sequence[models.Servers]:
+    stmt = select(models.Servers)
 
-    Args:
-        session: Асинхронная сессия базы данных
-        offset: Смещение (начиная с 0)
-        limit: Максимальное количество записей (от 1 до 1000)
+    if name:
+        stmt = stmt.where(models.Servers.name.ilike(f"%{name}%"))
 
-    Returns:
-        Список серверов
-    """
-    query = select(Servers).offset(offset).limit(limit)
-    result = await session.execute(query)
+    if status:
+        stmt = stmt.where(models.Servers.status == status)
+
+    stmt = (
+        stmt.order_by(models.Servers.id)
+        .offset(pagination.offset)
+        .limit(pagination.limit)
+    )
+
+    result = await session.execute(stmt)
     servers = result.scalars().all()
 
     return servers
