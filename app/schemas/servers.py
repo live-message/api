@@ -1,5 +1,5 @@
-from .models import Servers
+from sqlmodel import SQLModel
 
 
-class ServerRead(Servers):
+class Servers(SQLModel):
     name: str
