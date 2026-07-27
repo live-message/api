@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel
+from app.schemas import models
 
 
-class Servers(SQLModel):
+class Servers(models.Servers):
     name: str

@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     log.debug("Приложение завершило работу")
 
 
-@app.get("/docs", include_in_schema=False)
+@app.get("/", include_in_schema=False)
 async def scalar_html():
     return get_scalar_api_reference(
         openapi_url=app.openapi_url,
