@@ -36,6 +36,7 @@ jobs:
             echo "tag=false" >> $GITHUB_OUTPUT
             echo "release=false" >> $GITHUB_OUTPUT
           fi
+
   build:
     needs: check-tags
     if: needs.check-tags.outputs.tag != 'false'
@@ -43,6 +44,16 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        include:
+          - service: app
+            dockerfile: ./Dockerfile
+            context: .
+          - service: signaling
+            dockerfile: ./signaling/Dockerfile
+            context: ./signaling
+
     steps:
       - name: Скачивание репозитория
         uses: actions/checkout@v4
@@ -56,14 +67,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Сборка и публикация образа
+      - name: Сборка и публикация образа (${{ matrix.service }})
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ needs.check-tags.outputs.tag }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}-${{ matrix.service }}:${{ needs.check-tags.outputs.tag }}
+            ghcr.io/${{ github.repository }}-${{ matrix.service }}:latest
 
   create-release:
     runs-on: ubuntu-latest
