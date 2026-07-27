@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN npm install ws
 
-COPY signaling/server.js .
+COPY server.js .
 
 EXPOSE 8080
 
