@@ -14,7 +14,7 @@ jobs:
       release: ${{ steps.version.outputs.release }}
     steps:
       - name: Скачивание репозитория
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -56,19 +56,19 @@ jobs:
 
     steps:
       - name: Скачивание репозитория
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Вход в GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Сборка и публикация образа (${{ matrix.service }})
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
@@ -85,7 +85,7 @@ jobs:
       contents: write
     steps:
       - name: Создание релиза
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.check-tags.outputs.tag }}
           name: Релиз ${{ needs.check-tags.outputs.tag }}

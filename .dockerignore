@@ -9,7 +9,6 @@ logs
 .git
 .gitignore
 .dockerignore
-Dockerfile
 docker-compose.yml
 .pytest_cache
 .coverage
