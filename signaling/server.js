@@ -20,6 +20,6 @@ wss.on('connection', (ws, req) => {
     rooms.get(room).delete(ws);
     if (!rooms.get(room).size) return rooms.delete(room);
     for (const c of rooms.get(room))
-      if (c.readyState === WebSocket.OPEN) c.send('{"type":"users/exit"}');
+      if (c.readyState === WebSocket.OPEN) c.send('{"type":"exit"}');
   });
 });
